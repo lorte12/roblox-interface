@@ -5667,6 +5667,22 @@
 			})
 			library:apply_theme(cont_gradient, "contrast", "Color")
 
+			-- accent bar at top of container
+			local cont_accent = library:create("Frame", {
+				Parent             = cont_bg,
+				Size               = dim2(1, 0, 0, 2),
+				BorderColor3       = rgb(0, 0, 0),
+				BorderSizePixel    = 0,
+				ZIndex             = 2,
+				BackgroundColor3   = themes.preset.accent
+			})
+			library:apply_theme(cont_accent, "accent", "BackgroundColor3")
+			library:create("UIGradient", {
+				Parent             = cont_accent,
+				Rotation           = 90,
+				Color              = rgbseq{rgbkey(0, rgb(255, 255, 255)), rgbkey(1, rgb(167, 167, 167))}
+			})
+
 			-- scrolling frame with grid layout
 			local scroll = library:create("ScrollingFrame", {
 				Parent                 = cont_bg,
@@ -5697,9 +5713,9 @@
 			library:create("UIPadding", {
 				Parent        = scroll,
 				PaddingTop    = dim(0, 0),
-				PaddingLeft   = dim(0, 4),
-				PaddingRight  = dim(0, 4),
-				PaddingBottom = dim(0, 4)
+				PaddingLeft   = dim(0, 2),
+				PaddingRight  = dim(0, 2),
+				PaddingBottom = dim(0, 2)
 			})
 
 			cfg.scroll = scroll
