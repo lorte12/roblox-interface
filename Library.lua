@@ -5705,7 +5705,7 @@
 			library:create("UIGridLayout", {
 				Parent               = scroll,
 				CellSize             = cfg.card_size,
-				CellPadding          = dim2(0, 4, 0, 4),
+				CellPadding          = dim2(0, 2, 0, 2),
 				SortOrder            = Enum.SortOrder.LayoutOrder,
 				HorizontalAlignment  = Enum.HorizontalAlignment.Left,
 			})
@@ -5713,9 +5713,9 @@
 			library:create("UIPadding", {
 				Parent        = scroll,
 				PaddingTop    = dim(0, 0),
-				PaddingLeft   = dim(0, 2),
-				PaddingRight  = dim(0, 2),
-				PaddingBottom = dim(0, 2)
+				PaddingLeft   = dim(0, 0),
+				PaddingRight  = dim(0, 0),
+				PaddingBottom = dim(0, 0)
 			})
 
 			cfg.scroll = scroll
