@@ -214,7 +214,42 @@
 		[Enum.UserInputType.MouseButton3] = "MB3",
 		[Enum.KeyCode.Escape] = "ESC",
 		[Enum.KeyCode.Space] = "SPC",
+		[Enum.KeyCode.Tab] = "TAB",
+		[Enum.KeyCode.F1] = "F1",
+		[Enum.KeyCode.F2] = "F2",
+		[Enum.KeyCode.F3] = "F3",
+		[Enum.KeyCode.F4] = "F4",
+		[Enum.KeyCode.F5] = "F5",
+		[Enum.KeyCode.F6] = "F6",
+		[Enum.KeyCode.F7] = "F7",
+		[Enum.KeyCode.F8] = "F8",
+		[Enum.KeyCode.F9] = "F9",
+		[Enum.KeyCode.F10] = "F10",
+		[Enum.KeyCode.F11] = "F11",
+		[Enum.KeyCode.F12] = "F12",
+		[Enum.KeyCode.Delete] = "DEL",
+		[Enum.KeyCode.Home] = "HOME",
+		[Enum.KeyCode.End] = "END",
+		[Enum.KeyCode.PageUp] = "PgUp",
+		[Enum.KeyCode.PageDown] = "PgDn",
+		[Enum.KeyCode.Up] = "Up",
+		[Enum.KeyCode.Down] = "Down",
+		[Enum.KeyCode.Left] = "Left",
+		[Enum.KeyCode.Right] = "Right",
+		[Enum.KeyCode.NumLock] = "NumLk",
+		[Enum.KeyCode.ScrollLock] = "ScrLk",
+		[Enum.KeyCode.KeypadMultiply] = "Num*",
+		[Enum.KeyCode.KeypadDivide] = "Num/",
+		[Enum.KeyCode.KeypadMinus] = "Num-",
+		[Enum.KeyCode.KeypadPlus] = "Num+",
+		[Enum.KeyCode.KeypadEnter] = "NumEnt",
+		[Enum.KeyCode.KeypadPeriod] = "Num.",
 	}
+
+	-- Side mouse buttons (executor-dependent)
+	pcall(function() keys[Enum.UserInputType.MouseButton4] = "MB4" end)
+	pcall(function() keys[Enum.UserInputType.MouseButton5] = "MB5" end)
+	pcall(function() keys[Enum.UserInputType.MouseButton6] = "MB6" end)
 		
 	library.__index = library
 
