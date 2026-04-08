@@ -978,6 +978,45 @@
 			ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 		})
 
+		-- Custom cursor
+		local _cursorGui = library:create("ScreenGui", {
+			Parent = gethui(),
+			Name = "",
+			IgnoreGuiInset = true,
+			DisplayOrder = 9999999,
+			ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+		})
+
+		local _cursorIcon = library:create("ImageLabel", {
+			Parent = _cursorGui,
+			Name = "",
+			Size = UDim2.new(0, 18, 0, 18),
+			BackgroundTransparency = 1,
+			Image = "rbxassetid://6764432408",
+			ImageColor3 = Color3.fromRGB(255, 255, 255),
+			ZIndex = 999999,
+			Visible = false,
+		})
+
+		local _cursorConn = nil
+		library._cursorVisible = false
+
+		function library:show_cursor()
+			library._cursorVisible = true
+			_cursorIcon.Visible = true
+			if _cursorConn then _cursorConn:Disconnect() end
+			_cursorConn = game:GetService("RunService").RenderStepped:Connect(function()
+				local pos = uis:GetMouseLocation()
+				_cursorIcon.Position = UDim2.new(0, pos.X - 1, 0, pos.Y - 1)
+			end)
+		end
+
+		function library:hide_cursor()
+			library._cursorVisible = false
+			_cursorIcon.Visible = false
+			if _cursorConn then _cursorConn:Disconnect(); _cursorConn = nil end
+		end
+
 		function library:fold_elements(origin, elements)
 			for _, x in next, elements do 
 				local flag = library.visible_flags[x]
@@ -1295,6 +1334,12 @@
 				library:tween(blur, {Size = bool and (flags["Blur Size"] or 15) or 0})
 
 				dock_outline.Visible = bool;
+
+				if bool then
+					library:show_cursor()
+				else
+					library:hide_cursor()
+				end
 
 				sgui.Enabled = true
 				notif_holder.Enabled = true
