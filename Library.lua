@@ -978,78 +978,6 @@
 			ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 		})
 
-		-- Custom cursor (pure Lua, no rbxasset)
-		local _cursorGui = library:create("ScreenGui", {
-			Parent = gethui(),
-			Name = "",
-			IgnoreGuiInset = true,
-			DisplayOrder = 9999999,
-			ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-		})
-
-		local _cursorFrame = library:create("Frame", {
-			Parent = _cursorGui,
-			Name = "",
-			BackgroundTransparency = 1,
-			Size = UDim2.new(0, 1, 0, 1),
-			Visible = false,
-		})
-
-		do
-			local fill = Color3.fromRGB(90, 120, 175)
-			local edge = Color3.fromRGB(40, 55, 95)
-			-- border layer (1px wider on right + 1px on bottom)
-			for y = 0, 15 do
-				local w = math.floor(y * 12 / 15) + 1
-				library:create("Frame", {
-					Parent = _cursorFrame,
-					BackgroundColor3 = edge,
-					BorderSizePixel = 0,
-					Position = UDim2.new(0, 0, 0, y),
-					Size = UDim2.new(0, w + 1, 0, 2),
-					ZIndex = 999998,
-				})
-			end
-			-- fill layer
-			for y = 0, 15 do
-				local w = math.floor(y * 12 / 15) + 1
-				library:create("Frame", {
-					Parent = _cursorFrame,
-					BackgroundColor3 = fill,
-					BorderSizePixel = 0,
-					Position = UDim2.new(0, 0, 0, y),
-					Size = UDim2.new(0, w, 0, 1),
-					ZIndex = 999999,
-				})
-			end
-		end
-
-		local _cursorConn = nil
-		library._cursorVisible = false
-
-		function library:show_cursor()
-			library._cursorVisible = true
-			_cursorFrame.Visible = true
-			if _cursorConn then _cursorConn:Disconnect() end
-			_cursorConn = game:GetService("RunService").RenderStepped:Connect(function()
-				pcall(function()
-					uis.MouseBehavior = Enum.MouseBehavior.Default
-					uis.MouseIconEnabled = false
-				end)
-				local pos = uis:GetMouseLocation()
-				_cursorFrame.Position = UDim2.new(0, pos.X, 0, pos.Y)
-			end)
-		end
-
-		function library:hide_cursor()
-			library._cursorVisible = false
-			_cursorFrame.Visible = false
-			if _cursorConn then _cursorConn:Disconnect(); _cursorConn = nil end
-			pcall(function()
-				uis.MouseBehavior = Enum.MouseBehavior.LockCenter
-			end)
-		end
-
 		function library:fold_elements(origin, elements)
 			for _, x in next, elements do 
 				local flag = library.visible_flags[x]
@@ -1367,12 +1295,6 @@
 				library:tween(blur, {Size = bool and (flags["Blur Size"] or 15) or 0})
 
 				dock_outline.Visible = bool;
-
-				if bool then
-					library:show_cursor()
-				else
-					library:hide_cursor()
-				end
 
 				sgui.Enabled = true
 				notif_holder.Enabled = true
