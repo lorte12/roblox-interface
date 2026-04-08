@@ -978,6 +978,93 @@
 			ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 		})
 
+		-- Custom cursor (pure Lua, simulated via mouse delta)
+		local _cursorGui = library:create("ScreenGui", {
+			Parent = gethui(),
+			Name = "",
+			IgnoreGuiInset = true,
+			DisplayOrder = 9999999,
+			ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+		})
+
+		local _cursorFrame = library:create("Frame", {
+			Parent = _cursorGui,
+			Name = "",
+			BackgroundTransparency = 1,
+			Size = UDim2.new(0, 1, 0, 1),
+			Visible = false,
+		})
+
+		do
+			local fill = Color3.fromRGB(90, 120, 175)
+			local edge = Color3.fromRGB(40, 55, 95)
+			for y = 0, 15 do
+				local w = math.floor(y * 12 / 15) + 1
+				library:create("Frame", {
+					Parent = _cursorFrame,
+					BackgroundColor3 = edge,
+					BorderSizePixel = 0,
+					Position = UDim2.new(0, 0, 0, y),
+					Size = UDim2.new(0, w + 1, 0, 2),
+					ZIndex = 999998,
+				})
+			end
+			for y = 0, 15 do
+				local w = math.floor(y * 12 / 15) + 1
+				library:create("Frame", {
+					Parent = _cursorFrame,
+					BackgroundColor3 = fill,
+					BorderSizePixel = 0,
+					Position = UDim2.new(0, 0, 0, y),
+					Size = UDim2.new(0, w, 0, 1),
+					ZIndex = 999999,
+				})
+			end
+		end
+
+		local _cursorConns = {}
+		library._cursorVisible = false
+		local _virtualX, _virtualY = 0, 0
+		local _sensitivity = 1
+
+		function library:show_cursor()
+			library._cursorVisible = true
+			_cursorFrame.Visible = true
+
+			local cam = workspace.CurrentCamera
+			local vps = cam and cam.ViewportSize or Vector2.new(1920, 1080)
+			_virtualX = vps.X / 2
+			_virtualY = vps.Y / 2
+			_cursorFrame.Position = UDim2.new(0, _virtualX, 0, _virtualY)
+
+			for _, c in _cursorConns do c:Disconnect() end
+			_cursorConns = {}
+
+			table.insert(_cursorConns, uis.InputChanged:Connect(function(input)
+				if not library._cursorVisible then return end
+				if input.UserInputType == Enum.UserInputType.MouseMovement then
+					local dx = input.Delta.X * _sensitivity
+					local dy = input.Delta.Y * _sensitivity
+					local cam2 = workspace.CurrentCamera
+					local vps2 = cam2 and cam2.ViewportSize or Vector2.new(1920, 1080)
+					_virtualX = math.clamp(_virtualX + dx, 0, vps2.X)
+					_virtualY = math.clamp(_virtualY + dy, 0, vps2.Y)
+					_cursorFrame.Position = UDim2.new(0, _virtualX, 0, _virtualY)
+				end
+			end))
+		end
+
+		function library:hide_cursor()
+			library._cursorVisible = false
+			_cursorFrame.Visible = false
+			for _, c in _cursorConns do c:Disconnect() end
+			_cursorConns = {}
+		end
+
+		function library:get_cursor_position()
+			return _virtualX, _virtualY
+		end
+
 		function library:fold_elements(origin, elements)
 			for _, x in next, elements do 
 				local flag = library.visible_flags[x]
@@ -1295,6 +1382,12 @@
 				library:tween(blur, {Size = bool and (flags["Blur Size"] or 15) or 0})
 
 				dock_outline.Visible = bool;
+
+				if bool then
+					library:show_cursor()
+				else
+					library:hide_cursor()
+				end
 
 				sgui.Enabled = true
 				notif_holder.Enabled = true
