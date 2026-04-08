@@ -991,51 +991,23 @@
 			Parent = _cursorGui,
 			Name = "",
 			BackgroundTransparency = 1,
-			Size = UDim2.new(0, 14, 0, 21),
+			Size = UDim2.new(0, 12, 0, 14),
 			Visible = false,
 		})
 
 		do
-			-- Classic arrow cursor pixel art
-			-- B = black border, W = white fill, 0 = transparent
-			-- Row format: {startX, pixels} where each pixel is "B" or "W"
-			local black = Color3.fromRGB(0, 0, 0)
-			local white = Color3.fromRGB(255, 255, 255)
-			local rows = {
-				-- y=0: pointe
-				"B",
-				"BB",
-				"BWB",
-				"BWWB",
-				"BWWWB",
-				"BWWWWB",
-				"BWWWWWB",
-				"BWWWWWWB",
-				"BWWWWWWWB",
-				"BWWWWWWWWB",
-				"BWWWWWWWWWB",
-				"BWWWWWBBBBBB",
-				"BWWWBWB",
-				"BWWBBWB",
-				"BWBB0BWB",
-				"BB000BWB",
-				"B0000BWB",
-				"000000BB",
-			}
-			for y, row in ipairs(rows) do
-				for x = 1, #row do
-					local c = row:sub(x, x)
-					if c == "B" or c == "W" then
-						library:create("Frame", {
-							Parent = _cursorFrame,
-							BackgroundColor3 = c == "B" and black or white,
-							BorderSizePixel = 0,
-							Position = UDim2.new(0, x - 1, 0, y - 1),
-							Size = UDim2.new(0, 1, 0, 1),
-							ZIndex = c == "B" and 999998 or 999999,
-						})
-					end
-				end
+			local col = Color3.fromRGB(75, 110, 165)
+			-- Simple filled triangle, pointe en haut à gauche
+			local widths = {1,2,3,4,5,6,7,8,9,10,11,12,11,10,9,8,7,6,5,4,3,2}
+			for y, w in ipairs(widths) do
+				library:create("Frame", {
+					Parent = _cursorFrame,
+					BackgroundColor3 = col,
+					BorderSizePixel = 0,
+					Position = UDim2.new(0, 0, 0, y - 1),
+					Size = UDim2.new(0, w, 0, 1),
+					ZIndex = 999999,
+				})
 			end
 		end
 
