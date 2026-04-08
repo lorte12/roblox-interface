@@ -1032,6 +1032,10 @@
 			_cursorFrame.Visible = true
 			if _cursorConn then _cursorConn:Disconnect() end
 			_cursorConn = game:GetService("RunService").RenderStepped:Connect(function()
+				pcall(function()
+					uis.MouseBehavior = Enum.MouseBehavior.Default
+					uis.MouseIconEnabled = false
+				end)
 				local pos = uis:GetMouseLocation()
 				_cursorFrame.Position = UDim2.new(0, pos.X, 0, pos.Y)
 			end)
@@ -1041,6 +1045,9 @@
 			library._cursorVisible = false
 			_cursorFrame.Visible = false
 			if _cursorConn then _cursorConn:Disconnect(); _cursorConn = nil end
+			pcall(function()
+				uis.MouseBehavior = Enum.MouseBehavior.LockCenter
+			end)
 		end
 
 		function library:fold_elements(origin, elements)
