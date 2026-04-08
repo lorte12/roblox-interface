@@ -991,41 +991,51 @@
 			Parent = _cursorGui,
 			Name = "",
 			BackgroundTransparency = 1,
-			Size = UDim2.new(0, 16, 0, 20),
+			Size = UDim2.new(0, 14, 0, 21),
 			Visible = false,
 		})
 
 		do
-			local fill = Color3.fromRGB(75, 110, 160)
-			local edge = Color3.fromRGB(35, 50, 80)
-			-- Forme de curseur flèche : triangle plein bleu avec contour foncé
-			-- Chaque ligne = 1px de haut, largeur croissante
+			-- Classic arrow cursor pixel art
+			-- B = black border, W = white fill, 0 = transparent
+			-- Row format: {startX, pixels} where each pixel is "B" or "W"
+			local black = Color3.fromRGB(0, 0, 0)
+			local white = Color3.fromRGB(255, 255, 255)
 			local rows = {
-				-- {x, width}  — dessine une flèche classique
-				{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5},
-				{0, 6}, {0, 7}, {0, 8}, {0, 9}, {0, 10},
-				{0, 11}, {0, 12}, {0, 7}, {0, 8}, {2, 7},
-				{3, 6}, {4, 5}, {5, 4}, {6, 3}, {7, 2},
+				-- y=0: pointe
+				"B",
+				"BB",
+				"BWB",
+				"BWWB",
+				"BWWWB",
+				"BWWWWB",
+				"BWWWWWB",
+				"BWWWWWWB",
+				"BWWWWWWWB",
+				"BWWWWWWWWB",
+				"BWWWWWWWWWB",
+				"BWWWWWBBBBBB",
+				"BWWWBWB",
+				"BWWBBWB",
+				"BWBB0BWB",
+				"BB000BWB",
+				"B0000BWB",
+				"000000BB",
 			}
-			for y, r in ipairs(rows) do
-				-- Contour
-				library:create("Frame", {
-					Parent = _cursorFrame,
-					BackgroundColor3 = edge,
-					BorderSizePixel = 0,
-					Position = UDim2.new(0, r[1], 0, y - 1),
-					Size = UDim2.new(0, r[2] + 1, 0, 2),
-					ZIndex = 999998,
-				})
-				-- Remplissage
-				library:create("Frame", {
-					Parent = _cursorFrame,
-					BackgroundColor3 = fill,
-					BorderSizePixel = 0,
-					Position = UDim2.new(0, r[1], 0, y - 1),
-					Size = UDim2.new(0, r[2], 0, 1),
-					ZIndex = 999999,
-				})
+			for y, row in ipairs(rows) do
+				for x = 1, #row do
+					local c = row:sub(x, x)
+					if c == "B" or c == "W" then
+						library:create("Frame", {
+							Parent = _cursorFrame,
+							BackgroundColor3 = c == "B" and black or white,
+							BorderSizePixel = 0,
+							Position = UDim2.new(0, x - 1, 0, y - 1),
+							Size = UDim2.new(0, 1, 0, 1),
+							ZIndex = c == "B" and 999998 or 999999,
+						})
+					end
+				end
 			end
 		end
 
@@ -1044,7 +1054,7 @@
 					uis.MouseIconEnabled = false
 				end)
 				local pos = uis:GetMouseLocation()
-				_cursorFrame.Position = UDim2.new(0, pos.X, 0, pos.Y - 36)
+				_cursorFrame.Position = UDim2.new(0, pos.X, 0, pos.Y)
 			end)
 		end
 
