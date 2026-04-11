@@ -991,24 +991,48 @@
 			Parent = _cursorGui,
 			Name = "",
 			BackgroundTransparency = 1,
-			Size = UDim2.new(0, 12, 0, 14),
+			Size = UDim2.new(0, 14, 0, 18),
 			Visible = false,
 		})
 
 		do
-			local col = Color3.fromRGB(75, 110, 165)
-			-- Simple filled triangle, pointe en haut à gauche
-			local widths = {1,2,3,4,5,6,7,8,9,10,11,12,11,10,9,8,7,6,5,4,3,2}
-			for y, w in ipairs(widths) do
+			local fill = Color3.fromRGB(75, 110, 165)
+			local border = Color3.fromRGB(0, 0, 0)
+			local h = 17
+			local maxW = 12
+			for y = 0, h - 1 do
+				local w = math.floor((y + 1) * maxW / h + 0.5)
+				if w < 1 then w = 1 end
+				-- Contour noir
 				library:create("Frame", {
 					Parent = _cursorFrame,
-					BackgroundColor3 = col,
+					BackgroundColor3 = border,
 					BorderSizePixel = 0,
-					Position = UDim2.new(0, 0, 0, y - 1),
+					Position = UDim2.new(0, 0, 0, y),
 					Size = UDim2.new(0, w, 0, 1),
-					ZIndex = 999999,
+					ZIndex = 999998,
 				})
+				-- Remplissage bleu (1px plus petit de chaque côté sauf la pointe)
+				if w > 2 then
+					library:create("Frame", {
+						Parent = _cursorFrame,
+						BackgroundColor3 = fill,
+						BorderSizePixel = 0,
+						Position = UDim2.new(0, 1, 0, y),
+						Size = UDim2.new(0, w - 2, 0, 1),
+						ZIndex = 999999,
+					})
+				end
 			end
+			-- Ligne du bas (contour bas)
+			library:create("Frame", {
+				Parent = _cursorFrame,
+				BackgroundColor3 = border,
+				BorderSizePixel = 0,
+				Position = UDim2.new(0, 0, 0, h),
+				Size = UDim2.new(0, maxW, 0, 1),
+				ZIndex = 999998,
+			})
 		end
 
 		local _cursorConn = nil
@@ -1730,11 +1754,11 @@
 				library:make_resizable(items.main_holder) 
 			-- 
 
-			-- theming 
-				local style = library:panel({
-					name = "Style", 
+			-- settings (merged Style + Configuration)
+				local settings_panel = library:panel({
+					name = "Settings", 
 					anchor_point = vec2(0, 0),
-					size = dim2(0, 394, 0, 464),
+					size = dim2(0, 520, 0, 500),
 					position = dim2(0, main_window.items.main_holder.AbsolutePosition.X + main_window.items.main_holder.AbsoluteSize.X + 2, 0, main_window.items.main_holder.AbsolutePosition.Y),
 					image = "rbxassetid://115194686863276",
 				})
@@ -1747,10 +1771,11 @@
 					end 
 				end) 
 
-				local items = style.items
+				local items = settings_panel.items
 
-				local column = setmetatable(items, library):column() 
-				local section = column:section({name = "Theme"})
+				-- Column 1: Theme + Other
+				local col1 = setmetatable(items, library):column() 
+				local section = col1:section({name = "Theme"})
 				section:label({name = "Accent"})
 				:colorpicker({name = "Accent", color = themes.preset.accent, flag = "accent", callback = function(color, alpha)
 					library:update_theme("accent", color)
@@ -1798,7 +1823,7 @@
 						blur.Size = int
 					end
 				end})
-				local section = column:section({name = "Other"})
+				local section = col1:section({name = "Other"})
 				section:label({name = "UI Bind"})
 				:keybind({callback = window.set_menu_visibility, key = Enum.KeyCode.Insert})
 				section:toggle({name = "Keybind List", flag = "keybind_list", callback = function(bool)
@@ -1833,24 +1858,15 @@
 					end 
 				end})
 				section:slider({name = "Max Players", flag = "max_players", min = 0, max = 40, default = 15, interval = 1})
-			-- 
 
-			-- cfg holder
-				local holder = library:panel({
-					name = "Configurations", 
-					size = dim2(0, 324, 0, 410),
-					position = dim2(0, items.main_holder.AbsolutePosition.X + items.main_holder.AbsoluteSize.X + 2, 0, items.main_holder.AbsolutePosition.Y),
-					image = "rbxassetid://105199726008012",
-				}) 
-
-				local items = holder.items
+				-- Column 2: Configurations
+				local col2 = setmetatable(items, library):column() 
 
 				getgenv().load_config = function(name)
 					library:load_config(readfile(library.directory .. "/configs/" .. name .. ".cfg"))
 				end 
 
-				local column = setmetatable(items, library):column() 
-				local section = column:section({name = "Options"})
+				local section = col2:section({name = "Configurations"})
 					config_holder = section:list({flag = "config_name_list"})
 					section:textbox({flag = "config_name_text_box"})
 					section:button_holder({})
@@ -1894,40 +1910,6 @@
 						blur:Destroy()
 					end})
 			-- 
-					
-			-- esp preview
-				local holder = library:panel({
-					name = "ESP Preview", 
-					anchor_point = vec2(0, 0),
-					size = dim2(0, 300, 0, 325),
-					position = dim2(0, style.items.main_holder.AbsolutePosition.X, 0, style.items.main_holder.AbsolutePosition.Y + style.items.main_holder.AbsoluteSize.Y + 2),
-					image = "rbxassetid://77684377836328",
-				})  
-				
-				local items = holder.items
-				
-				local column = setmetatable(items, library):column() 
-				window.esp_section = column:section({name = "Main"})
-			--  
-
-			-- playerlist 
-				local holder = library:panel({
-					name = "Playerlist", 
-					anchor_point = vec2(0, 0),
-					size = dim2(0, 529, 0, 445),
-					position = dim2(0, main_window.items.main_holder.AbsolutePosition.X - 531, 0, main_window.items.main_holder.AbsolutePosition.Y),
-					image = "rbxassetid://107070078834415",
-				})  
-				
-				local items = holder.items
-
-				local column = setmetatable(items, library):column() 
-				local section = column:section({name = "Playerlist"})
-				local playerlist = section:playerlist({})
-				section:dropdown({name = "Priority", items = {"Enemy", "Priority", "Neutral", "Friendly"}, default = "Neutral", flag = "PLAYERLIST_DROPDOWN", callback = function(text)
-					library.prioritize(text)
-				end})
-			--  
 
 			return setmetatable(window, library)
 		end
