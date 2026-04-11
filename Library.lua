@@ -1755,9 +1755,7 @@
 			-- 
 
 			-- settings tab (Theme + Other + Configurations)
-				local settingsTab = window:tab({name = "Settings"})
-				local settingsCol1 = settingsTab:column()
-				local settingsCol2 = settingsTab:column()
+				local settingsTab = setmetatable(window, library):tab({name = "Settings"})
 
 				local watermark = library:watermark({default = os.date('Atlanta |  - %b %d %Y - %H:%M:%S')})  
 
@@ -1767,7 +1765,8 @@
 					end 
 				end) 
 
-				local section = settingsCol1:section({name = "Theme"})
+				local col1 = settingsTab:column() 
+				local section = col1:section({name = "Theme"})
 				section:label({name = "Accent"})
 				:colorpicker({name = "Accent", color = themes.preset.accent, flag = "accent", callback = function(color, alpha)
 					library:update_theme("accent", color)
@@ -1815,7 +1814,7 @@
 						blur.Size = int
 					end
 				end})
-				local section = settingsCol1:section({name = "Other"})
+				local section = col1:section({name = "Other"})
 				section:label({name = "UI Bind"})
 				:keybind({callback = window.set_menu_visibility, key = Enum.KeyCode.Insert})
 				section:toggle({name = "Keybind List", flag = "keybind_list", callback = function(bool)
@@ -1851,11 +1850,13 @@
 				end})
 				section:slider({name = "Max Players", flag = "max_players", min = 0, max = 40, default = 15, interval = 1})
 
+				local col2 = settingsTab:column() 
+
 				getgenv().load_config = function(name)
 					library:load_config(readfile(library.directory .. "/configs/" .. name .. ".cfg"))
 				end 
 
-				local section = settingsCol2:section({name = "Configurations"})
+				local section = col2:section({name = "Configurations"})
 					config_holder = section:list({flag = "config_name_list"})
 					section:textbox({flag = "config_name_text_box"})
 					section:button_holder({})
