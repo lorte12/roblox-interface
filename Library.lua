@@ -3075,6 +3075,143 @@
 			return setmetatable(cfg, library)
 		end
 
+		function library:subcategory(options)
+			local cfg = {
+				name = options.name or "Sub Category",
+			}
+			local open = (options.open ~= false)
+
+			-- Main container
+			local container = library:create("Frame", {
+				Parent = self.holder,
+				Name = "\0",
+				Size = dim2(1, -8, 0, 0),
+				AutomaticSize = Enum.AutomaticSize.Y,
+				BackgroundTransparency = 1,
+				BorderSizePixel = 0,
+			})
+
+			-- Layout for header + content
+			library:create("UIListLayout", {
+				Parent = container,
+				Padding = dim(0, 0),
+				SortOrder = Enum.SortOrder.LayoutOrder
+			})
+
+			-- Header bar
+			local header = library:create("Frame", {
+				Parent = container,
+				Name = "\0",
+				Size = dim2(1, 0, 0, 20),
+				BackgroundColor3 = rgb(255, 255, 255),
+				BorderSizePixel = 0,
+				LayoutOrder = 0,
+			})
+
+			local headerGrad = library:create("UIGradient", {
+				Parent = header,
+				Rotation = 90,
+				Color = rgbseq{
+					rgbkey(0, rgb(35, 35, 47)),
+					rgbkey(1, rgb(30, 30, 40))
+				}
+			}) library:apply_theme(headerGrad, "contrast", "Color")
+
+			-- Accent line at top of header
+			local headerAccent = library:create("Frame", {
+				Parent = header,
+				Name = "\0",
+				Size = dim2(1, 0, 0, 1),
+				BorderSizePixel = 0,
+				BackgroundColor3 = themes.preset.accent,
+			}) library:apply_theme(headerAccent, "accent", "BackgroundColor3")
+
+			-- Arrow indicator
+			local arrow = library:create("TextLabel", {
+				Parent = header,
+				FontFace = library.font,
+				TextColor3 = themes.preset.text,
+				Text = open and "v" or ">",
+				BackgroundTransparency = 1,
+				Position = dim2(0, 4, 0, 0),
+				Size = dim2(0, 12, 1, 0),
+				TextXAlignment = Enum.TextXAlignment.Left,
+				TextSize = 12,
+				BorderSizePixel = 0,
+			})
+			library:create("UIStroke", {
+				Parent = arrow,
+				LineJoinMode = Enum.LineJoinMode.Miter
+			})
+			library:apply_theme(arrow, "text", "TextColor3")
+
+			-- Title text
+			local title = library:create("TextLabel", {
+				Parent = header,
+				FontFace = library.font,
+				TextColor3 = themes.preset.text,
+				Text = cfg.name,
+				BackgroundTransparency = 1,
+				Position = dim2(0, 16, 0, 0),
+				Size = dim2(1, -20, 1, 0),
+				TextXAlignment = Enum.TextXAlignment.Left,
+				TextSize = 12,
+				BorderSizePixel = 0,
+			})
+			library:create("UIStroke", {
+				Parent = title,
+				LineJoinMode = Enum.LineJoinMode.Miter
+			})
+			library:apply_theme(title, "text", "TextColor3")
+
+			-- Content holder (holds child elements)
+			local content = library:create("Frame", {
+				Parent = container,
+				Name = "\0",
+				Size = dim2(1, 0, 0, 0),
+				AutomaticSize = Enum.AutomaticSize.Y,
+				BackgroundTransparency = 1,
+				BorderSizePixel = 0,
+				ClipsDescendants = true,
+				Visible = open,
+				LayoutOrder = 1,
+			})
+
+			library:create("UIListLayout", {
+				Parent = content,
+				Padding = dim(0, 4),
+				HorizontalAlignment = Enum.HorizontalAlignment.Center,
+				SortOrder = Enum.SortOrder.LayoutOrder
+			})
+
+			library:create("UIPadding", {
+				Parent = content,
+				PaddingTop = dim(0, 4),
+				PaddingBottom = dim(0, 2)
+			})
+
+			cfg.holder = content
+
+			-- Click header to toggle
+			local headerBtn = library:create("TextButton", {
+				Parent = header,
+				Name = "\0",
+				Size = dim2(1, 0, 1, 0),
+				BackgroundTransparency = 1,
+				Text = "",
+				BorderSizePixel = 0,
+				ZIndex = 2,
+			})
+
+			headerBtn.MouseButton1Click:Connect(function()
+				open = not open
+				content.Visible = open
+				arrow.Text = open and "v" or ">"
+			end)
+
+			return setmetatable(cfg, library)
+		end
+
 		function library:slider(options)
 			local cfg = {
 				name = options.name or nil,
