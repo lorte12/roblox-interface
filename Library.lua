@@ -1383,7 +1383,7 @@
 
 				library:tween(blur, {Size = bool and (flags["Blur Size"] or 15) or 0})
 
-				dock_outline.Visible = bool;
+				-- dock_outline.Visible = bool;
 
 				if bool then
 					library:show_cursor()
@@ -1411,7 +1411,7 @@
 				dock_outline = library:create("Frame", {
 					Parent = sgui,
 					Name = "",
-					Visible = true,
+					Visible = false,
 					BorderColor3 = rgb(0, 0, 0),
 					AnchorPoint = vec2(0.5, 0),
 					Position = dim2(0.5, 0, 0, 20),
@@ -1670,8 +1670,7 @@
 					Parent = items.holder,
 					Name = " ",
 					BackgroundTransparency = 1,
-					Size = dim2(1, 0, 0, 0),
-					Visible = false,
+					Size = dim2(1, 0, 0, 22),
 					BorderColor3 = rgb(0, 0, 0),
 					ZIndex = 5,
 					BorderSizePixel = 0,
@@ -1690,9 +1689,9 @@
 					Parent = items.holder,
 					Name = " ",
 					BackgroundTransparency = 1,
-					Position = dim2(0, -1, 0, -1),
+					Position = dim2(0, -1, 0, 19),
 					BorderColor3 = rgb(0, 0, 0),
-					Size = dim2(1, 0, 1, 0),
+					Size = dim2(1, 0, 1, -22),
 					BorderSizePixel = 0,
 					BackgroundColor3 = rgb(255, 255, 255)
 				})
