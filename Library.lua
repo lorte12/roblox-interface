@@ -1670,10 +1670,11 @@
 					Parent = items.holder,
 					Name = " ",
 					BackgroundTransparency = 1,
-					Size = dim2(1, 0, 0, 22),
+					Size = dim2(1, 0, 0, 0),
 					BorderColor3 = rgb(0, 0, 0),
 					ZIndex = 5,
 					BorderSizePixel = 0,
+					Visible = false,
 					BackgroundColor3 = rgb(255, 255, 255)
 				})
 
@@ -1689,9 +1690,9 @@
 					Parent = items.holder,
 					Name = " ",
 					BackgroundTransparency = 1,
-					Position = dim2(0, -1, 0, 19),
+					Position = dim2(0, -1, 0, 0),
 					BorderColor3 = rgb(0, 0, 0),
-					Size = dim2(1, 0, 1, -22),
+					Size = dim2(1, 0, 1, 0),
 					BorderSizePixel = 0,
 					BackgroundColor3 = rgb(255, 255, 255)
 				})
