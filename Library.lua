@@ -14,6 +14,7 @@
 	local debris = cloneref(game:GetService("Debris"))
 	local tween_service = cloneref(game:GetService("TweenService"))
 	local sound_service = cloneref(game:GetService("SoundService"))
+	local teleport_service = cloneref(game:GetService("TeleportService"))
 	local starter_gui = cloneref(game:GetService("StarterGui"))
 	local rs = cloneref(game:GetService("ReplicatedStorage"))
 
@@ -276,6 +277,22 @@
 	library.font = Font.new(getcustomasset("dddd.ttf"), Enum.FontWeight.Regular)
 
 	local config_holder 
+
+	-- Shared rainbow colorpicker system (one loop instead of N per colorpicker)
+	local _rainbowPickers = {}
+	task.spawn(function()
+		while true do
+			task.wait(0.033) -- ~30 FPS is enough for rainbow
+			if next(_rainbowPickers) then
+				local hue = math.abs(math.sin(tick()))
+				for picker, data in next, _rainbowPickers do
+					if library.flags[data.flag] then
+						picker.set(Color3.fromHSV(hue, data.getS(), data.getV()), data.getA())
+					end
+				end
+			end
+		end
+	end)
 -- 
 
 -- library functions 
@@ -474,8 +491,10 @@
 			return enum_table
 		end
 
+		local _cachedTweenInfo = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut, 0, false, 0)
+
 		function library:tween(obj, properties) 
-			local tween = tween_service:Create(obj, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut, 0, false, 0), properties):Play()
+			local tween = tween_service:Create(obj, _cachedTweenInfo, properties):Play()
 				
 			return tween
 		end 
@@ -538,12 +557,9 @@
 		end
 
 		function library:update_theme(theme, color)
-			for _, property in next, themes.utility[theme] do 
-
-				for m, object in next, property do 
-					if object[_] == themes.preset[theme] or object.ClassName == "UIGradient" then
-						object[_] = color 
-					end
+			for prop, objects in next, themes.utility[theme] do 
+				for _, object in next, objects do 
+					object[prop] = color 
 				end 
 			end 
 
@@ -1044,13 +1060,14 @@
 			_cursorFrame.Visible = true
 			_savedMouseBehavior = uis.MouseBehavior
 			if _cursorConn then _cursorConn:Disconnect() end
-			_cursorConn = game:GetService("RunService").RenderStepped:Connect(function()
-				pcall(function()
-					uis.MouseBehavior = Enum.MouseBehavior.Default
-					uis.MouseIconEnabled = false
-				end)
+			pcall(function()
+				uis.MouseBehavior = Enum.MouseBehavior.Default
+				uis.MouseIconEnabled = false
+			end)
+			_cursorConn = run.RenderStepped:Connect(function()
+				uis.MouseBehavior = Enum.MouseBehavior.Default
 				local pos = uis:GetMouseLocation()
-				_cursorFrame.Position = UDim2.new(0, pos.X, 0, pos.Y)
+				_cursorFrame.Position = dim_offset(pos.X, pos.Y)
 			end)
 		end
 
@@ -1382,6 +1399,13 @@
 				end
 
 				library:tween(blur, {Size = bool and (flags["Blur Size"] or 15) or 0})
+				if bool then
+					blur.Enabled = true
+				else
+					task.delay(0.3, function()
+						if not window.opened then blur.Enabled = false end
+					end)
+				end
 
 				-- dock_outline.Visible = bool;
 
@@ -1837,15 +1861,15 @@
 				end})
 				section:button_holder({})
 				section:button({name = "Rejoin", callback = function()
-					game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId, lp)
+					teleport_service:TeleportToPlaceInstance(game.PlaceId, game.JobId, lp)
 				end})
 				section:button_holder({})
 				section:button({name = "Join New Server", callback = function()
-					local apiRequest = game:GetService("HttpService"):JSONDecode(game:HttpGetAsync("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"))
+					local apiRequest = http_service:JSONDecode(game:HttpGetAsync("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"))
 					local data = apiRequest.data[random(1, #apiRequest.data)]
 						
 					if data.playing <= flags["max_players"] then 
-						game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, data.id)
+						teleport_service:TeleportToPlaceInstance(game.PlaceId, data.id)
 					end 
 				end})
 				section:slider({name = "Max Players", flag = "max_players", min = 0, max = 40, default = 15, interval = 1})
@@ -2044,7 +2068,7 @@
 				items.camera.CameraSubject = character
 
 				library:connection(run.RenderStepped, function()
-					task.wait()
+					if not items.viewportframe.Visible then return end
 					cfg.rotation += 0.5
 					character:SetPrimaryPartCFrame(cfr(Vector3.new(0, 1, -6)) * angle(0, math.rad(cfg.rotation), 0))
 				end)
@@ -2416,8 +2440,10 @@
 
 			task.spawn(function()
 				while true do 
-					task.wait()
-					cfg.change_health()
+					task.wait(0.05)
+					if items.viewportframe and items.viewportframe.Visible then
+						cfg.change_health()
+					end
 				end 
 			end)
 
@@ -4216,18 +4242,8 @@
 				end
 			end)	
 
-			task.spawn(function()
-				while true do 
-					task.wait()
-					if flags[cfg.flag .. "_RAINBOW_FLAG"] then 
-						cfg.set(
-							hsv(math.abs(math.sin(tick())), 
-							s, 
-							v
-						), a) 
-					end     
-				end     
-			end)
+			-- Register into shared rainbow system
+			_rainbowPickers[cfg] = {flag = cfg.flag .. "_RAINBOW_FLAG", s = s, v = v, a = a, getS = function() return s end, getV = function() return v end, getA = function() return a end}
 
 			cfg.set(cfg.color, cfg.alpha)
 
